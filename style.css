@@ -125,6 +125,7 @@ border: #1e1e1e;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     outline: none;
     transition: 0.3s;
-    color:rgba(0, 0, 0, 0.637)
+    color:rgba(0, 0, 0, 0.637);
+    background-color: white;
 
 }
