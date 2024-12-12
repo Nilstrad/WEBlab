@@ -45,15 +45,53 @@ func Connect() error {
 		return fmt.Errorf("ошибка подключения к базе данных: %v", err)
 	}
 
+	connStr = fmt.Sprintf(
+		"postgres://%s:%s@%s/%s?sslmode=%s",
+		dbUser,
+		dbPassword,
+		dbHost,
+		dbName,
+		dbSslMode,
+	)
+	DB, err = sql.Open("postgres", connStr)
+	if err != nil {
+		return fmt.Errorf("ошибка подключения к базе данных: %v", err)
+	}
+
 	err = DB.Ping()
 	if err != nil {
 		return fmt.Errorf("ошибка подключения к базе данных: %v", err)
 	}
 
 	fmt.Println("Успешное подключение к базе данных")
+
+	err = EnsureNewsTableExists(DB)
+	if err != nil {
+		return fmt.Errorf("ошибка проверки/создания таблицы: %v", err)
+	}
+
 	return nil
 }
 
 func GetEnvVariable(key string) string {
 	return os.Getenv(key)
+}
+
+func EnsureNewsTableExists(db *sql.DB) error {
+	query := `
+	CREATE TABLE IF NOT EXISTS news (
+		id SERIAL PRIMARY KEY,
+		title VARCHAR(255) NOT NULL,
+		author VARCHAR(255) NOT NULL,
+		content TEXT NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);`
+
+	_, err := db.Exec(query)
+	if err != nil {
+		return fmt.Errorf("ошибка создания таблицы news: %v", err)
+	}
+
+	fmt.Println("Таблица news проверена или успешно создана")
+	return nil
 }
